@@ -34,10 +34,33 @@ class _HomePageState extends State<HomePage> {
             SizedBox(height:20),
             GridView(
               shrinkWrap: true,
+              gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
+                mainAxisSpacing: 0.0,
+                maxCrossAxisExtent: 100,
+              ),
             )
           ],
         ),
       ),
+    );
+  }
+}
+class Tile extends StatefulWidget {
+
+  String imageAssetPath, selected;
+  _HomePageState parent;
+  Tile({this.imageAssetPath,this.selected,this.parent});
+
+  @override
+  _TileState createState() => _TileState();
+}
+
+class _TileState extends State<Tile> {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.all(5),
+      child:Image.asset(widget.imageAssetPath),
     );
   }
 }
