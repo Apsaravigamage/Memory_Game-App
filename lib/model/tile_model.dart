@@ -16,7 +16,7 @@ class TileModel{
     return imageAssetPath;
   }
 
-  bool getIsSelected(bool bool){
+  bool getIsSelected(){
     return isSelected;
   }
 }

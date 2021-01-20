@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:memory_game/data/data.dart';
+import 'package:memory_game/model/tile_model.dart';
 
 void main() {
   runApp(MyApp());
@@ -23,13 +25,37 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  List<TileModel> pairs = new List<TileModel>();
+  List<TileModel> visiblePairs = new List<TileModel>();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    pairs = getPairs();
+    pairs.shuffle();
+    visiblePairs = pairs;
+
+    Future.delayed(const Duration(seconds: 3),(){
+    setState(() {
+       visiblePairs = getQuestions();
+    }); 
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
+        padding: EdgeInsets.symmetric(vertical:50, horizontal:20),
         child: Column(
           children:<Widget>[
-            Text("0/800"),
+            SizedBox(height: 20,),
+            Text("0/800",style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w500),
+            ),
             Text("Points"),
             SizedBox(height:20),
             GridView(
@@ -38,6 +64,13 @@ class _HomePageState extends State<HomePage> {
                 mainAxisSpacing: 0.0,
                 maxCrossAxisExtent: 100,
               ),
+              children: List.generate(visiblePairs.length, (index){
+                return Tile(
+                  imageAssetPath: visiblePairs[index].getImageAssetPath(),
+                  selected: visiblePairs[index].getIsSelected(),
+                  parent: this,
+                );
+              }),
             )
           ],
         ),
@@ -47,7 +80,8 @@ class _HomePageState extends State<HomePage> {
 }
 class Tile extends StatefulWidget {
 
-  String imageAssetPath, selected;
+  String imageAssetPath ;
+  bool selected;
   _HomePageState parent;
   Tile({this.imageAssetPath,this.selected,this.parent});
 
