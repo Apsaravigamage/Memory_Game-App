@@ -26,7 +26,7 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  List<TileModel> pairs = new List<TileModel>();
+ 
   List<TileModel> visiblePairs = new List<TileModel>();
 
   @override
@@ -35,11 +35,14 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     pairs = getPairs();
     pairs.shuffle();
+
     visiblePairs = pairs;
+    selected = true;
 
     Future.delayed(const Duration(seconds: 3),(){
     setState(() {
        visiblePairs = getQuestions();
+       selected = false;
     }); 
     });
   }
@@ -52,7 +55,7 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           children:<Widget>[
             SizedBox(height: 20,),
-            Text("0/800",style: TextStyle(
+            Text("$points/800",style: TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.w500),
             ),
@@ -67,8 +70,8 @@ class _HomePageState extends State<HomePage> {
               children: List.generate(visiblePairs.length, (index){
                 return Tile(
                   imageAssetPath: visiblePairs[index].getImageAssetPath(),
-                  selected: visiblePairs[index].getIsSelected(),
                   parent: this,
+                  tileIndex: index,
                 );
               }),
             )
@@ -81,9 +84,11 @@ class _HomePageState extends State<HomePage> {
 class Tile extends StatefulWidget {
 
   String imageAssetPath ;
-  bool selected;
+
+  int tileIndex;
+
   _HomePageState parent;
-  Tile({this.imageAssetPath,this.selected,this.parent});
+  Tile({this.imageAssetPath,this.parent, this.tileIndex });
 
   @override
   _TileState createState() => _TileState();
@@ -92,9 +97,39 @@ class Tile extends StatefulWidget {
 class _TileState extends State<Tile> {
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.all(5),
-      child:Image.asset(widget.imageAssetPath),
+    return GestureDetector(
+      onTap: (){
+        if(!selected){
+          if(selectedTileIndex != ""){
+
+            if(selectedImageAssetPath == pairs[widget.tileIndex].getImageAssetPath()){
+              //correct
+              print("correct");
+
+              Future.delayed(const Duration(seconds: 2),(){
+                points = points + 100;
+              });
+            }else{
+              //wrong
+              print("wrong");
+            }
+
+          }else{
+             selectedTileIndex = widget.tileIndex;
+             selectedImageAssetPath = pairs[widget.tileIndex].getImageAssetPath();
+          }
+          setState(() {
+            pairs[widget.tileIndex].setIsSelected(true);
+          });
+          print("You clicked me");
+        }
+      },
+      child: Container(
+        margin: EdgeInsets.all(5),
+        child: Image.asset(pairs[widget.tileIndex].getIsSelected() ? pairs[widget.tileIndex]
+        .getImageAssetPath():widget.imageAssetPath),
+        
+      ),
     );
   }
 }
