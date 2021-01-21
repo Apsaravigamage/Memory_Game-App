@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:memory_game/data/data.dart';
-import 'package:memory_game/model/tile_model.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: HomePage(),
     );
@@ -27,10 +28,11 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
  
-  List<TileModel> visiblePairs = new List<TileModel>();
+  
 
   @override
   void initState() {
+  
     // TODO: implement initState
     super.initState();
     pairs = getPairs();
@@ -54,14 +56,20 @@ class _HomePageState extends State<HomePage> {
         padding: EdgeInsets.symmetric(vertical:50, horizontal:20),
         child: Column(
           children:<Widget>[
-            SizedBox(height: 20,),
-            Text("$points/800",style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.w500),
+            SizedBox(height: 40,),
+            points != 800 ? Column(
+              children: <Widget>[
+                Text("$points/800",style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w500),
             ),
-            Text("Points"),
+             Text("Points"),
+            ],
+            ):Container(),
+            
+           
             SizedBox(height:20),
-            GridView(
+            points != 800 ? GridView(
               shrinkWrap: true,
               gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
                 mainAxisSpacing: 0.0,
@@ -74,6 +82,18 @@ class _HomePageState extends State<HomePage> {
                   tileIndex: index,
                 );
               }),
+            ): Container(
+              padding: EdgeInsets.symmetric(vertical:12, horizontal:24),
+              decoration: BoxDecoration(
+                color: Colors.blue,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: Text("Replay", style: TextStyle(
+                fontSize: 17,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+              ),
             )
           ],
         ),
@@ -81,6 +101,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+// ignore: must_be_immutable
 class Tile extends StatefulWidget {
 
   String imageAssetPath ;
@@ -100,24 +121,45 @@ class _TileState extends State<Tile> {
     return GestureDetector(
       onTap: (){
         if(!selected){
-          if(selectedTileIndex != ""){
+         
+          if(selectedImageAssetPath != ""){
 
             if(selectedImageAssetPath == pairs[widget.tileIndex].getImageAssetPath()){
               //correct
               print("correct");
-
+              selected = true;
               Future.delayed(const Duration(seconds: 2),(){
                 points = points + 100;
+               
+                setState(() {  
+                });
+                selected = false;
+                widget.parent.setState(() {
+                  pairs[widget.tileIndex].setImageAssetPath("");
+                  pairs[selectedTileIndex].setImageAssetPath("");
+                });
+                selectedImageAssetPath = "";
               });
             }else{
               //wrong
               print("wrong");
+              selected = true;
+              Future.delayed(const Duration(seconds: 2),(){
+                selected = false;
+                widget.parent.setState(() {
+                  pairs[widget.tileIndex].setIsSelected(false);
+                  pairs[selectedTileIndex].setIsSelected(false);
+                });
+
+                selectedImageAssetPath = "";
+              });
             }
 
           }else{
              selectedTileIndex = widget.tileIndex;
              selectedImageAssetPath = pairs[widget.tileIndex].getImageAssetPath();
           }
+          
           setState(() {
             pairs[widget.tileIndex].setIsSelected(true);
           });
@@ -126,8 +168,10 @@ class _TileState extends State<Tile> {
       },
       child: Container(
         margin: EdgeInsets.all(5),
-        child: Image.asset(pairs[widget.tileIndex].getIsSelected() ? pairs[widget.tileIndex]
-        .getImageAssetPath():widget.imageAssetPath),
+        child: pairs[widget.tileIndex].getImageAssetPath() != "" ? 
+        Image.asset(pairs[widget.tileIndex].getIsSelected() ?
+        pairs[widget.tileIndex].getImageAssetPath():widget.imageAssetPath):
+        Image.asset("assets/correct.png"),
         
       ),
     );
